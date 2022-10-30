@@ -1,0 +1,282 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: file_testing
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: ''
+    window_size: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '500000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [168, 8.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /home/dmitr/save_pi/Desktop/rx.txt
+    type: byte
+    unbuffered: 'False'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [752, 232.0]
+    rotation: 0
+    state: true
+- name: blocks_file_source_0
+  id: blocks_file_source
+  parameters:
+    affinity: ''
+    alias: ''
+    begin_tag: pmt.PMT_NIL
+    comment: ''
+    file: /home/dmitr/save_pi/Desktop/OFDM/File.txt
+    length: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    repeat: 'True'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8.0, 88]
+    rotation: 270
+    state: true
+- name: blocks_repack_bits_bb_0
+  id: blocks_repack_bits_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    align_output: 'False'
+    comment: ''
+    endianness: gr.GR_MSB_FIRST
+    k: '1'
+    l: '8'
+    len_tag_key: '""'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 64.0]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle_0
+  id: blocks_throttle
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [64, 336.0]
+    rotation: 0
+    state: true
+- name: digital_psk_demod_0
+  id: digital_psk_demod
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation_points: '4'
+    differential: 'True'
+    excess_bw: '0.35'
+    freq_bw: 6.28/100.0
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mod_code: '"gray"'
+    phase_bw: 6.28/100.0
+    samples_per_symbol: '2'
+    timing_bw: 6.28/100.0
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 12.0]
+    rotation: 0
+    state: enabled
+- name: digital_psk_mod_0
+  id: digital_psk_mod
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation_points: '4'
+    differential: 'True'
+    excess_bw: '0.35'
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mod_code: '"gray"'
+    samples_per_symbol: '2'
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 240.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "#!/usr/bin/env python\n# -*- coding: utf-8 -*-\n#\n# Copyright\
+      \ 2022 dmitr.\n#\n# SPDX-License-Identifier: GPL-3.0-or-later\n#\n\n\nimport\
+      \ numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\n    \"\"\
+      \"\n    docstring for block add_barking_code\n    \"\"\"\n    def __init__(self):\n\
+      \        gr.sync_block.__init__(self,name=\"add_barking_code\",in_sig=[np.uint8],\
+      \ out_sig=[np.uint8])\n\n        self.barkersequence = [0, 0, 0, 0, 0, 1, 1,\
+      \ 0, 0, 1, 0, 1, 0, 0, 0, 0]*2\n        self.syncLength = len(self.barkersequence)\n\
+      \        self.PACKET_SIZE = 1024\n\n    def work(self, input_items, output_items):\n\
+      \t#\u041F\u0420\u0418\u041D\u0418\u041C\u0410\u0415\u0422 \u0440\u0430\u0441\
+      \u043F\u0430\u043A\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0431\u0430\u0439\
+      \u0442\u044B \u0438 \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 \u043A\
+      \u043E\u0434\u044B \u0431\u0430\u0440\u043A\u0435\u0440\u0430\n        if len(input_items[0])\
+      \ > self.PACKET_SIZE and len(output_items[0]) > self.PACKET_SIZE + self.syncLength:\n\
+      \            for i in range(len(self.barkersequence)):\n                output_items[0][i]\
+      \ = self.barkersequence[i]\n            for i in range(self.PACKET_SIZE):\n\
+      \                output_items[0][self.syncLength+i] = input_items[0][i]\n  \
+      \          self.consume_each(self.PACKET_SIZE);\n            return self.PACKET_SIZE\
+      \ + self.syncLength\n        return 0\n\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('add_barking_code', 'blk', [], [('0', 'byte', 1)], [('0', 'byte',
+      1)], '\n    docstring for block add_barking_code\n    ', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 88.0]
+    rotation: 0
+    state: disabled
+- name: epy_block_1
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\n\n\nclass blk(gr.sync_block):  # other base classes\
+      \ are basic_block, decim_block, interp_block\n    \"\"\"Embedded Python Block\
+      \ example - a simple multiply const\"\"\"\n\n    def __init__(self):  # only\
+      \ default arguments here\n        \"\"\"arguments to this function show up as\
+      \ parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n            self,\n\
+      \            name='Print',   # will show up in GRC\n            in_sig=[np.complex64],\n\
+      \            out_sig=[]\n        )\n        # if an attribute with the same\
+      \ name as a parameter is found,\n        # a callback is registered (properties\
+      \ work, too).\n\n\n    def work(self, input_items):\n        \"\"\"example:\
+      \ multiply with constant\"\"\"\n        #output_items[0][:] = input_items[0]\
+      \ * self.example_param\n        print(len(input_items[0]))\n        return len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Print', 'blk', [], [('0', 'complex', 1)], [], 'Embedded Python Block
+      example - a simple multiply const', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [296, 16.0]
+    rotation: 0
+    state: disabled
+- name: mylib_wifi_pmt_add_barking_code_0
+  id: mylib_wifi_pmt_add_barking_code
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [144, 256.0]
+    rotation: 0
+    state: enabled
+- name: mylib_wifi_pmt_del_barking_code_0
+  id: mylib_wifi_pmt_del_barking_code
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [760, 184.0]
+    rotation: 180
+    state: enabled
+
+connections:
+- [blocks_file_source_0, '0', blocks_throttle_0, '0']
+- [blocks_repack_bits_bb_0, '0', mylib_wifi_pmt_del_barking_code_0, '0']
+- [blocks_throttle_0, '0', mylib_wifi_pmt_add_barking_code_0, '0']
+- [digital_psk_demod_0, '0', blocks_repack_bits_bb_0, '0']
+- [digital_psk_mod_0, '0', digital_psk_demod_0, '0']
+- [mylib_wifi_pmt_add_barking_code_0, '0', digital_psk_mod_0, '0']
+- [mylib_wifi_pmt_del_barking_code_0, '0', blocks_file_sink_0, '0']
+
+metadata:
+  file_format: 1
